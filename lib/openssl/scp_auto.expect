@@ -1,0 +1,36 @@
+#!/usr/bin/expect
+
+set TAR_NAME "openssl_root.tar.gz"
+
+#set scp_server1 "root@172.16.1.129:/home/root/tailu"
+#set scp_server2 "root@172.16.1.94:/home/root/tailu"
+#set scp_server2 "root@172.16.1.94:/home/root/kms/tai"
+set scp_server2 "root@172.16.1.94:/home/root/softhsm"
+
+#"./softhsmv2.tgz" \
+#"/home/tailu/work/pufhsm/pufhsm/openssl/openssl_arm.tar.gz" \
+
+set src_file [list \
+"./${TAR_NAME}" \
+"./export_openssl.sh" \
+]
+
+#spawn scp {*}$src_file $scp_server1
+#expect "*?assword:" { send "root\r" }
+#interact
+
+spawn scp -P 22103 {*}$src_file $scp_server2
+expect "*?assword:" { send "root\r" }
+interact
+
+#spawn scp -P 22105 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact
+
+#spawn scp -P 22104 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact
+
+#spawn scp -P 22110 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact

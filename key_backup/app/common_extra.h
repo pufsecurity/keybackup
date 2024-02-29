@@ -1,0 +1,202 @@
+/***********************************************************************************
+ *
+ *  Copyright (c) 2023-2024, PUFsecurity
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without modification,
+ *  are permitted provided that the following conditions are met:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *
+ *  3. Neither the name of PUFsecurity nor the names of its contributors may be
+ *     used to endorse or promote products derived from this software without
+ *     specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
+ *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ *  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ *  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ *  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ *  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ **************************************************************************************/
+
+#ifndef __COMMON_EXTRA_H__
+#define __COMMON_EXTRA_H__
+
+typedef uint8_t	Xuint8;		/**< unsigned 8-bit */
+typedef char		Xint8;		/**< signed 8-bit */
+typedef uint16_t	Xuint16;	/**< unsigned 16-bit */
+typedef short		Xint16;		/**< signed 16-bit */
+typedef uint32_t	Xuint32;	/**< unsigned 32-bit */
+typedef long		Xint32;		/**< signed 32-bit */
+typedef float		Xfloat32;	/**< 32-bit floating point */
+typedef double		Xfloat64;	/**< 64-bit double precision FP */
+typedef unsigned long	Xboolean;	/**< boolean (XTRUE or XFALSE) */
+typedef Xuint32         u32;
+typedef Xuint16         u16;
+typedef Xuint8          u8;
+
+typedef struct {
+    union {
+        u8 *out1;          ///< output array
+        u8 *x_out;         ///< output array for x in public key
+        u8 *r_out;         ///< output array for r in signautre
+        const u8 *in1;     ///< input array
+        const u8 *x_in;    ///< input array for x in public key
+        const u8 *r_in;    ///< input array for r in signautre
+    };
+    union {
+        u8 *out2;          ///< output array
+        u8 *y_out;         ///< output array for y in public key
+        u8 *s_out;         ///< output array for s in signautre
+        const u8 *in2;     ///< input array
+        const u8 *y_in;    ///< input array for y in public key
+        const u8 *s_in;    ///< input array for s in signautre
+    };
+    size_t len;                 ///< length of the array
+} pufs_tuple_bytes_st;
+
+typedef struct {
+    union {
+        u8 *out;       ///< output array
+        const u8 *in;  ///< input array
+    };
+    size_t len;             ///< length of the array
+} pufs_bytes_st;
+
+typedef pthread_mutex_t pufs_pal_mutex;
+
+/**
+ * @brief Convert number of bits to number of bytes
+ *
+ * @param[in] bits  Number of bits.
+ * @return          Number of bytes.
+ */
+#define b2B(bits) (((bits) + 7) / 8)
+/**
+ * @brief Convert number of bytes to number of bits
+ *
+ * @param[in] len  Number of bytes.
+ * @return         Number of bits.
+ */
+#define B2b(len) (8 * (len))
+/**
+ * @brief Convert test cases parameters
+ *
+ * @param[in] type  Type of test cases.
+ * @param[in] var   Test case variable.
+ * @return          num, var
+ */
+#define TCPARAM(type, var) (sizeof(var) / sizeof(type)), (var)
+#define __PUFS_PUFCC
+#ifdef __PUFS_PUFCC
+/**
+ * @brief Block size in bytes of block cipher algorithms
+ */
+#define BC_BLOCK_SIZE 16
+#endif /* __PUFS_PUFCC */
+
+/**
+ * @brief Instansiate a pufs_bytes_st on local stack
+ */
+#define CREATE_PUFS_BYTES(_ptr, _len, _dir) \
+    &(pufs_bytes_st){ \
+        ._dir = (_ptr), \
+        .len = (_len), \
+    }
+#define CREATE_PUFS_BYTES_IN(_ptr, _len)  CREATE_PUFS_BYTES(_ptr, _len, in)
+#define CREATE_PUFS_BYTES_OUT(_ptr, _len) CREATE_PUFS_BYTES(_ptr, _len, out)
+
+/**
+ * @brief Allocate space for bytes on local stack
+ */
+#define PUFS_BYTES_ALLOC(_size) \
+    &(pufs_bytes_st){ \
+        .out = (u8[(_size)]){ 0 }, \
+        .len = (_size), \
+    }
+
+/*
+typedef enum {
+    SWKEY = 0,    ///< Software key input from outside.
+    OTPKEY = 1,   ///< Key stored in OTP. See OTPKEY_## in \ref pufs_rt_slot_t.
+    PUFKEY = 2,   ///< Key stored in PUF. See PUFSLOT_## in \ref pufs_rt_slot_t.
+    RANDKEY = 3,  ///< Key is generated by RNG.
+    SHARESEC = 4, ///< Shared secret. See SHARESEC_## in \ref pufs_ka_slot_t.
+    SSKEY = 5,    ///< Session/secret key. See SK###_## in \ref pufs_ka_slot_t.
+    PRKEY = 6,    ///< Private key. See PRK_## in \ref pufs_ka_slot_t.
+    RSAOTPKEY = 7,///< RSA key stored in OTP 2.
+    N_KEY_STORAGE_T,
+} pufs_key_storage_t;
+*/
+
+#define pufs_key_storage_t pufs_key_type_t
+
+typedef struct {
+    pufs_key_storage_t key_storage;   ///< Key Storage Type
+    union {
+        const u8 *keyaddr;            ///< Key Buffer Address
+        u32 keyslot;                  ///< Key Slot
+        u32 keyaddr_ofst;             ///< Key Address Offset
+        uintptr_t key;                ///< Key init
+    };
+    u32 keybits;                      ///< Size of key in bits
+} pufs_key_st;
+
+#define CREATE_PUFS_KEY_ST(_key_storage, _keyaddr, _keybits) \
+    &(pufs_key_st) { \
+        .key_storage = _key_storage, \
+        .key = (uintptr_t)_keyaddr, \
+        .keybits = _keybits, \
+    }
+
+#define PTEST_TO_BYTES_ST(_ptr, _len) \
+    (pufs_bytes_st){ \
+        .in = (_ptr), \
+        .len = (_len), \
+    }
+
+/*
+typedef enum {
+    NISTB163,   ///< NIST B-163
+    NISTB233,   ///< NIST B-233
+    NISTB283,   ///< NIST B-283
+    NISTB409,   ///< NIST B-409
+    NISTB571,   ///< NIST B-571
+    NISTK163,   ///< NIST K-163
+    NISTK233,   ///< NIST K-233
+    NISTK283,   ///< NIST K-283
+    NISTK409,   ///< NIST K-409
+    NISTK571,   ///< NIST K-571
+    NISTP192,   ///< NIST P-192
+    NISTP224,   ///< NIST P-224
+    NISTP256,   ///< NIST P-256
+    NISTP384,   ///< NIST P-384
+    NISTP521,   ///< NIST P-521
+    SM2,        ///< SM2
+    N_ECNAME_T, // keep in the last one
+} pufs_ec_name_t;
+*/
+
+typedef enum {
+    KEY_OUT_SK,     ///< keyout to session key slot
+    KEY_OUT_SS,     ///< keyout to shared secret slot
+    KEY_OUT_PKC,    ///< keyout to pkc
+    KEY_OUT_CRYPTO, ///< keyout to register, e.g. to crypto dgst_out
+    N_KDF_KEYOUT_T, // keep in the last one
+} pufs_kdf_keyout_type_t;
+
+
+
+#endif /* __COMMON_EXTRA_H__ */
+

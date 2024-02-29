@@ -1,0 +1,48 @@
+#!/usr/bin/expect
+
+#set scp_server1 "root@172.16.1.125:/home/root/tailu"
+set scp_server2 "root@172.16.1.94:/home/root/keybackup"
+#set scp_server2 "root@172.16.1.94:/home/root/kms/tai"
+
+#"./key_backup/app/openssl_arm.tar.gz" \
+
+set src_file [list \
+"ca.key" \
+"ca.crt" \
+"export_lib.sh" \
+"gen_crt.sh" \
+"mount.sh" \
+"client" \
+"server" \
+"libcore.so" \
+"libpufse.so" \
+"generateKey" \
+"encryptData" \
+"hmacKey" \
+"clearKey" \
+"data.txt" \
+"backup_key.sh" \
+"restore_key.sh" \
+"run_server.sh" \
+"keybackup.conf" \
+]
+
+#spawn scp {*}$src_file $scp_server1
+#expect "*?assword:" { send "root\r" }
+#interact
+
+#spawn scp -P 2251 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact
+
+spawn scp -P 2252 {*}$src_file $scp_server2
+expect "*?assword:" { send "root\r" }
+interact
+
+#spawn scp -P 2253 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact
+
+#spawn scp -P 2254 {*}$src_file $scp_server2
+#expect "*?assword:" { send "root\r" }
+#interact
