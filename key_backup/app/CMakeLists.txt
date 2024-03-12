@@ -50,6 +50,7 @@ target_link_libraries(clearKey
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 
 target_link_libraries(hmacKey
@@ -59,6 +60,7 @@ target_link_libraries(hmacKey
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 
 target_link_libraries(encryptData
@@ -68,6 +70,7 @@ target_link_libraries(encryptData
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 
 target_link_libraries(generateKey
@@ -83,6 +86,7 @@ target_link_libraries(generateKey
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 
 target_link_libraries(client
@@ -98,6 +102,7 @@ target_link_libraries(client
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 
 target_link_libraries(server
@@ -113,6 +118,7 @@ target_link_libraries(server
         -lcore
         pufselib
         ${LIBUDEV}
+        -pthread
 )
 target_include_directories(clearKey
     PRIVATE

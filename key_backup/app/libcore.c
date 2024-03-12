@@ -710,13 +710,13 @@ static pufs_status_t pufs_gen_aes_key(pufs_bytes_st *salt)
 {
     pufs_status_t check = PUFS_SUCCESS;
 
-    salt->len = 64;	// Max salt length is 64
+    //salt->len = 64;	// Max salt length is 64
     STATISTICS_FUNC("pufs_kdf");
     check = pufs_kdf(SSKEY, CLIENT_KEY_SLOT, 256,
             PRF_HMAC, PUFSE_SHA_256, false,
             NULL, 0, 1,
             PUFKEY, CLIENT_PUFSLOT_AESKEY, 256,
-            NULL, 0,  //salt
+            salt->in, salt->len,  //salt
             NULL, 0); //info
     if (check != PUFS_SUCCESS) APP_ERR("pufs_kdf_hkdf fail, ret = %d", check);
 
@@ -738,7 +738,7 @@ int generate_salt(pufs_bytes_st *salt)
     get_macaddr(interfaceNames, (char *)(salt->out));
     mac_length = strlen((char *)(salt->out));
     salt->out = salt->out + mac_length;
-    salt->len = salt->len - mac_length;
+    //salt->len = salt->len - mac_length;
 
     STATISTICS_FUNC("pufs_get_uid");
     check = pufs_get_uid(&uid, CLIENT_PUFSLOT_UID);
@@ -748,7 +748,7 @@ int generate_salt(pufs_bytes_st *salt)
     }
     memcpy(salt->out, uid.uid, UIDLEN);
     salt->out = salt->out - mac_length;
-    salt->len = salt->len + mac_length;
+    salt->len = UIDLEN + mac_length;
 RET:
     return check;
 
